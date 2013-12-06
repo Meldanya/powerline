@@ -1023,6 +1023,15 @@ if os.path.exists('/sys/class/power_supply/BAT0/capacity'):
 	def _get_capacity():
 		with open('/sys/class/power_supply/BAT0/capacity', 'r') as f:
 			return int(float(f.readline().split()[0]))
+elif sys.platform == 'darwin':
+	import re
+	def _get_capacity():
+		res = os.popen('pmset -g batt').read()
+		capacity = re.search(r'(\d+)%', res)
+		if capacity:
+			return int(capacity.group(1))
+		else:
+			raise NotImplementedError
 else:
 	def _get_capacity():
 		raise NotImplementedError
